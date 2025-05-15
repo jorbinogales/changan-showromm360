@@ -1,0 +1,86 @@
+.indicator-box{
+    top:0px;
+    bottom:0px;
+    left:0px;
+    right:0px;
+    position:absolute;
+    background-color: rgba(0,0,0,0.85) ;
+    width: 370px;
+    height: 279px;
+    border-radius: 48px;
+    position:absolute;
+    left:0px;
+    right:0px;
+    margin:auto;
+}
+
+.indicator-box .mouse{
+    display: flex;
+    width: auto;
+    height: auto;
+    min-width: 75px;
+    width: 25%;
+    max-width: 200px;
+    justify-content: center;
+    align-items: center;
+}
+
+@keyframes leftArrow {
+  0% {
+    opacity: 0;
+    transform: translateX(0);
+  }
+  20% {
+    opacity: 1;
+  }
+  80% {
+    opacity: 1;
+    transform: translateX(-10px);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(0);
+  }
+}
+
+@keyframes rightArrow {
+  0% {
+    opacity: 0;
+    transform: translateX(0);
+  }
+  20% {
+    opacity: 1;
+  }
+  80% {
+    opacity: 1;
+    transform: translateX(10px);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(0);
+  }
+}
+
+.animate-left-arrow {
+  animation: leftArrow 1.5s ease-out infinite;
+  left: 0px;
+}
+
+.animate-right-arrow {
+  animation: rightArrow 1.5s ease-out infinite;
+  right:0px;
+}
+
+.indicator-wrapper {
+  transition: opacity 0.5s ease;
+}
+
+.indicator-visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.indicator-hidden {
+  opacity: 0;
+  pointer-events: none;
+}
