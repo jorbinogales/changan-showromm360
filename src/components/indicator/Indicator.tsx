@@ -5,19 +5,23 @@ import ArrowRight from './../../assets/icons/arrow_right.svg';
 import './indicator.css';
 import { useEffect, useState } from 'react';
 
-const IndicatorC = () => {
+type IndicatorCProps = {
+	showPlay: () => void;
+};
+
+const IndicatorC = ({ showPlay }: IndicatorCProps) => {
 	const [visible, setVisible] = useState(true);
 
 	const handleClickMove = () => {
-		setTimeout(() => {
-			setVisible(false);
-		}, 1000);
+		setVisible(false);
+		showPlay();
 	};
 
 	const handleMouseMove = () => {
 		setTimeout(() => {
 			setVisible(false);
-		}, 3000);
+			showPlay();
+		}, 1000);
 	};
 
 	useEffect(() => {

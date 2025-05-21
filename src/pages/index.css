@@ -20,7 +20,7 @@
 
 @media only screen and (min-width: 1440px) {
   .vehiculo{
-      max-width: 600px;
+      max-width: 750px;
   }
 }
 
@@ -44,29 +44,6 @@
     bottom:0px;
 }
 
-.sidebar{
-  background-color: red;
-  position:relative;
-  height: 300px;
-  left:0px;
-  top:25vh;
-  bottom:0px;
-}
-
-.sidebar-button {
-  display: block;
-  position: absolute;
-  bottom:0;
-  top:40vh;
-  width: 35px;
-  height: 35px;
-  padding: 5px;
-  background-color: white;
-  border-radius: 100%;
-  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
-  z-index: 500;
-}
-
 @keyframes blink-fade {
   0% {
     opacity: 0;
@@ -84,4 +61,56 @@
 
 .arrow-blink {
   animation: blink-fade 5s infinite;
+}
+
+
+.vehiculo {
+  position: relative;
+	transition: transform 0.3s ease;
+}
+
+.vehiculo.bounce {
+	animation: bounce 0.5s ease;
+}
+
+.button-play{
+  display: block;
+  width: 50px;
+  height: 50px;
+  background-color: var(--color-blue-changan);
+}
+
+.custom-shape-divider-top-1747853131 {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    overflow: hidden;
+    line-height: 0;
+    transform: rotate(180deg);
+}
+
+.custom-shape-divider-top-1747853131 svg {
+    position: relative;
+    display: block;
+    width: calc(300% + 1.3px);
+    height: 157px;
+}
+
+.custom-shape-divider-top-1747853131 .shape-fill {
+    fill: #F0F0F0;
+}
+
+.wave{
+  background-color: white;
+  min-height: 200px;
+}
+
+.body-content{
+  background-color: white;
+}
+
+.body-content .information{
+  max-width: 1300px;
+  margin:auto;
 }

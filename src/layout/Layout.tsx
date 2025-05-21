@@ -7,8 +7,8 @@ type Props = {
 
 const Layout = ({ children }: Props) => (
 	<div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
-		{/* <NavbarC />   */}
-		<main className="h-[90vh] mt-[5vh] mb-[5vh]">{children}</main>
+		<NavbarC />
+		<main className="mt-[5vh] mb-[5vh]">{children}</main>
 	</div>
 );
 

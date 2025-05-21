@@ -1,0 +1,22 @@
+
+.whatsapp-buttom{
+    top:50%;
+    width: 60px;
+    height: 60px;
+    justify-content: center;
+    align-items: center;
+    animation: bounce 5s ease-in infinite;
+}
+
+.whatsapp-buttom img{
+    position: relative;
+    filter: brightness(0) invert(1);
+    width: 30px;
+    height: 30px;
+    margin:auto;
+    margin-top:15px;
+}
+
+.whatsapp-buttom:hover{
+    transform: scale(1.1);
+}
