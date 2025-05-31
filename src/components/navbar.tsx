@@ -28,7 +28,7 @@ const NavbarC = () => {
 
 				{/* Botón hamburguesa (solo en móviles) */}
 				<button
-					className="md:hidden text-primary-changan"
+					className="lg:hidden text-primary-changan"
 					onClick={() => setIsOpen(!isOpen)}
 				>
 					<svg
@@ -48,7 +48,7 @@ const NavbarC = () => {
 				</button>
 
 				{/* Menú en pantallas grandes */}
-				<ul className="hidden md:flex space-x-6">
+				<ul className="hidden lg:flex space-x-6">
 					{[
 						'Inicio',
 						'Descubre Changan',

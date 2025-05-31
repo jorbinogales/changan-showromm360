@@ -1,80 +1,83 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
 
 import TitleC from '../components/showcar/title';
 import ArrowRoundedLeft from './../assets/icons/arrow_rounded_left.svg';
 import ArrowRoundedRight from './../assets/icons/arrow_rounded_right.svg';
-import Play from './../assets/icons/play.png';
-import Stop from './../assets/icons/stop.svg';
 
 import IndicatorC from '../components/indicator/Indicator';
 import FooterC from '../components/showcar/footer';
 import './index.css';
 import WhatsAppButton from '../components/whatsapp/whatsapp';
+import highlightPositions from '../components/hightlights/hightlights';
+import HintC from '../components/hint/hint';
+import PreloaderC from '../components/preloader/preloader';
+import HintModalC from '../components/hint/hintModal';
+import InformationC from '../components/information/information';
 
 const TOTAL_IMAGES = 180;
 const STEP = 4;
 const MAX_INDEX = TOTAL_IMAGES - STEP;
 
-const formatNumber = (num: number) => String(num).padStart(4, '0');
-
-const preloadImages = async (
-	colors: string[],
-	onProgress: (loaded: number) => void
-) => {
-	const promises: Promise<void>[] = [];
-
-	for (const color of colors) {
-		for (let i = 0; i < TOTAL_IMAGES; i += STEP) {
-			const src = `/src/assets/vehicles/cs55plus/${color}/${formatNumber(
-				i
-			)}.png`;
-			promises.push(
-				new Promise((resolve) => {
-					const img = new Image();
-					img.src = src;
-					img.onload = () => {
-						onProgress(i + STEP);
-						resolve();
-					};
-					img.onerror = () => resolve();
-				})
-			);
-		}
-	}
-
-	await Promise.all(promises);
-};
+const formatNumber = (num: number): any => String(num).padStart(4, '0');
 
 const Showroom = () => {
-	const [currentColor, setCurrenColor] = useState('beige');
+	/* Modales */
+	const [isModalOpen, setIsModalOpen] = useState(false);
+	const [selectedHint, setSelectedHint] = useState<{
+		content: string;
+		imageUrl: any;
+	} | null>(null);
+
+	const [currentColor, setCurrenColor] = useState('white');
 	const [currentIndex, setCurrentIndex] = useState(0);
 	const [isBouncing, setIsBouncing] = useState(false);
-
-	/* Ocultar boton de play al arrastar */
-	const [isDragging, setIsDragging] = useState(false);
-
-	/* Rotacion automatica del vehiculo */
-	const [isPlaying, setIsPlaying] = useState(false);
-	const [showPlay, setShowPlay] = useState(false);
-	const animationRef = useRef<number | null>(null);
 
 	/* Cargando imagenes */
 	const [loadedCount, setLoadedCount] = useState(0);
 	const [loading, setLoading] = useState(true);
+	const [lastLoadedImage, setLastLoadedImage] = useState<string | null>(null);
 
 	const startX = useRef<number | null>(null);
 
 	const COLORS = ['black', 'beige', 'white', 'gray'];
 
 	useEffect(() => {
-		preloadImages(COLORS, (loaded) => {
+		preloadImages(COLORS, (loaded, imgSrc) => {
 			setLoadedCount((prev) => prev + STEP);
+			setLastLoadedImage(imgSrc); // Guardamos la imagen cargada
 		}).then(() => {
 			setLoading(false);
 		});
 	}, []);
+
+	const preloadImages = async (
+		colors: string[],
+		onProgress: (loaded: number, imgSrc: string) => void
+	) => {
+		const promises: Promise<void>[] = [];
+
+		for (const color of colors) {
+			for (let i = 0; i < TOTAL_IMAGES; i += STEP) {
+				const src = `/src/assets/vehicles/cs55plus/${color}/${formatNumber(
+					i
+				)}.png`;
+				promises.push(
+					new Promise((resolve) => {
+						const img = new Image();
+						img.src = src;
+						img.onload = () => {
+							onProgress(i + STEP, src); // Ahora enviamos la src
+							resolve();
+						};
+						img.onerror = () => resolve();
+					})
+				);
+			}
+		}
+
+		await Promise.all(promises);
+	};
 
 	const percentage = Math.min((loadedCount / TOTAL_IMAGES) * 100, 100);
 
@@ -88,12 +91,10 @@ const Showroom = () => {
 	};
 
 	const handleTouchStart = (e: React.TouchEvent) => {
-		setIsDragging(true);
 		startX.current = e.touches[0].clientX;
 	};
 
 	const handleTouchMove = (e: React.TouchEvent) => {
-		setIsDragging(true);
 		if (startX.current === null) return;
 		const currentX = e.touches[0].clientX;
 		const diffX = currentX - startX.current;
@@ -109,21 +110,18 @@ const Showroom = () => {
 	};
 
 	const handleMouseDown = (e: React.MouseEvent) => {
-		setIsDragging(false);
 		startX.current = e.clientX;
 		window.addEventListener('mouseup', handleMouseUp);
 		window.addEventListener('mousemove', handleMouseMove);
 	};
 
 	const handleMouseUp = () => {
-		setIsDragging(false);
 		startX.current = null;
 		window.removeEventListener('mouseup', handleMouseUp);
 		window.removeEventListener('mousemove', handleMouseMove);
 	};
 
 	const handleMouseMove = (e: MouseEvent) => {
-		setIsDragging(true);
 		if (startX.current === null) return;
 		const diffX = e.clientX - startX.current;
 
@@ -137,70 +135,69 @@ const Showroom = () => {
 		}
 	};
 
-	const showPlaying = () => {
-		setShowPlay(true);
-	};
-
-	/* Rotacion automatica del vehiculo */
-	const lastFrameTime = useRef<number>(0);
-	const ROTATION_DELAY = 150; // tiempo en milisegundos entre cada paso (ajusta esto si quieres más lento o rápido)
-	const rotate = (time: number) => {
-		if (time - lastFrameTime.current >= ROTATION_DELAY) {
-			setCurrentIndex((prev) => (prev + STEP > MAX_INDEX ? 0 : prev + STEP));
-			lastFrameTime.current = time;
-		}
-		animationRef.current = requestAnimationFrame(rotate);
-	};
-
-	const togglePlay = () => {
-		console.log(isPlaying);
-		if (isPlaying) {
-			if (animationRef.current) {
-				cancelAnimationFrame(animationRef.current);
-				animationRef.current = null;
-			}
-			setIsPlaying(false);
-		} else {
-			setIsPlaying(true);
-			lastFrameTime.current = performance.now();
-			animationRef.current = requestAnimationFrame(rotate);
+	// abrir modal
+	const openModalInfo = (id: string) => {
+		const hint = highlightPositions[formatNumber(currentIndex)]?.find(
+			(p: any) => p.id === id
+		);
+		if (hint) {
+			setSelectedHint({
+				content:
+					hint.hint.content || 'No hay información disponible para este hint.',
+				imageUrl:
+					hint.hint.image ||
+					'https://changanvzla.com/wp-content/uploads/2024/10/camioneta-CS55-Plus-galeria2.jpg',
+			});
+			setIsModalOpen(true);
 		}
 	};
-
-	/* Rotacion automatica del vehiculo cuando se desmonte el componente */
-	React.useEffect(() => {
-		return () => {
-			if (animationRef.current) {
-				cancelAnimationFrame(animationRef.current);
-			}
-		};
-	}, []);
 
 	const imageSrc = `/src/assets/vehicles/cs55plus/${currentColor}/${formatNumber(
 		currentIndex
 	)}.png`;
 
-	if (loading) {
-		return (
-			<div className="h-screen w-screen flex items-center justify-center">
-				<div style={{ width: 120, height: 120 }}>
-					<CircularProgressbar
-						value={percentage}
-						text={`${Math.round(percentage)}%`}
-						styles={buildStyles({
-							textSize: '16px',
-							pathColor: '#ff0000',
-							textColor: '#000',
-							trailColor: '#eee',
-						})}
-					/>
-				</div>
-			</div>
-		);
-	}
+	const imgRef = useRef<HTMLImageElement | null>(null); //
+	const [imgHeight, setImgHeight] = useState(0);
+
+	useEffect(() => {
+		if (imgRef.current) {
+			setImgHeight(imgRef.current.offsetHeight);
+		}
+	}, [imageSrc]); // o cualquier dependencia que cambie el tamaño de la imagen
+
+	useEffect(() => {
+		const updateHeight = () => {
+			if (imgRef.current) {
+				setImgHeight(imgRef.current.offsetHeight);
+			}
+		};
+
+		// Observador para cambios de tamaño
+		const observer = new ResizeObserver(() => {
+			updateHeight();
+		});
+
+		if (imgRef.current) {
+			observer.observe(imgRef.current);
+			// Fallback inicial por si ResizeObserver tarda
+			setTimeout(updateHeight, 100);
+		}
+
+		// Cleanup
+		return () => {
+			if (imgRef.current) {
+				observer.unobserve(imgRef.current);
+			}
+		};
+	}, []);
 
 	return (
 		<>
+			<PreloaderC
+				percentage={percentage}
+				lastLoadedImage={lastLoadedImage}
+				loading={loading}
+			/>
 			<div className="flex">
 				{/* Contenido principal */}
 				<div className="flex-1 p-4 transition-all duration-300 relative">
@@ -221,35 +218,61 @@ const Showroom = () => {
 									alt="Girar izquierda"
 								/>
 								<img
-									onClick={togglePlay}
+									ref={imgRef} // 👈 aquí
 									src={imageSrc}
 									className={`vehiculo ${isBouncing ? 'bounce' : ''}`}
 									alt="Vehículo"
 									draggable={false}
+									onLoad={() => {
+										// Captura la altura apenas la imagen carga
+										if (imgRef.current) {
+											setImgHeight(imgRef.current.offsetHeight);
+										}
+									}}
 								/>
-								{!isPlaying && !isDragging && showPlay === true && (
-									<img
-										onClick={togglePlay}
-										src={Play}
-										className="fade-in absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-black bg-opacity-50 text-white rounded-full z-10 hover:scale-110 transition"
-									/>
-								)}
-								{isPlaying && !isDragging && showPlay === true && (
-									<img
-										onClick={togglePlay}
-										src={Stop}
-										className="absolute top-1/2 left-1/2 w-10 h-10 opacity-25"
-									/>
-								)}
-
 								<img
 									src={ArrowRoundedRight}
 									className="arrow-rounded-right arrow-blink"
 									alt="Girar derecha"
 								/>
+								<div
+									className={'vehiculo'}
+									style={{
+										position: 'absolute',
+										margin: 'auto',
+										right: 0,
+										left: 0,
+										height: imgHeight,
+									}}
+								>
+									{highlightPositions[formatNumber(currentIndex)]?.map(
+										(pos: any, idx: string) => (
+											<div
+												onClick={() => openModalInfo(pos.id)}
+												key={idx}
+												style={{
+													position: 'absolute',
+													top: pos.top,
+													left: pos.left,
+													display: pos.display,
+													transform: 'translate(-50%, -50%)',
+												}}
+											>
+												<HintC></HintC>
+											</div>
+										)
+									)}
+									<HintModalC
+										isOpen={isModalOpen}
+										setIsOpen={setIsModalOpen}
+										content={selectedHint?.content}
+										image={selectedHint?.imageUrl}
+									/>
+								</div>
 							</div>
+
 							<WhatsAppButton />
-							<IndicatorC showPlay={showPlaying} />
+							<IndicatorC />
 							<FooterC onColorChange={changeColor} />
 						</div>
 					</div>
@@ -271,10 +294,7 @@ const Showroom = () => {
 				</div>
 			</div>
 			<div className="body-content">
-				{/* <div className="information bg-white grid grid-cols-1 md:grid-cols-2 gap-4">
-					<div className="bg-blue-200 p-4">Columna 1</div>
-					<div className="bg-red-200 p-4">Columna 2</div>
-				</div> */}
+				<InformationC></InformationC>
 			</div>
 		</>
 	);
